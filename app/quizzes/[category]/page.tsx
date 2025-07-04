@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, Clock, Award, Users } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { headers } from 'next/headers';
 
 interface Quiz {
   id: string;
@@ -23,19 +24,17 @@ interface Category {
 }
 
 export async function generateStaticParams() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
   try {
-    const response = await fetch(`${baseUrl}/api/categories`, {
+    const host = headers().get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const url = `${protocol}://${host}/api/categories`;
+    const response = await fetch(url, {
       cache: 'force-cache',
     });
-
     if (!response.ok) {
       throw new Error('Failed to fetch categories');
     }
-
     const categories: Category[] = await response.json();
-
     return categories.map((category) => ({
       category: category.id,
     }));
@@ -68,17 +67,16 @@ export async function generateMetadata({ params }: { params: { category: string 
 }
 
 async function getQuizzes(category: string): Promise<Quiz[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
   try {
-    const response = await fetch(`${baseUrl}/api/quizzes/${category}`, {
+    const host = headers().get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const url = `${protocol}://${host}/api/quizzes/${category}`;
+    const response = await fetch(url, {
       cache: 'no-store', // SSR behavior
     });
-
     if (!response.ok) {
       throw new Error('Failed to fetch quizzes');
     }
-
     return response.json();
   } catch (error) {
     console.error('Error fetching quizzes:', error);
@@ -87,17 +85,16 @@ async function getQuizzes(category: string): Promise<Quiz[]> {
 }
 
 async function getCategories(): Promise<Category[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
   try {
-    const response = await fetch(`${baseUrl}/api/categories`, {
+    const host = headers().get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const url = `${protocol}://${host}/api/categories`;
+    const response = await fetch(url, {
       cache: 'force-cache',
     });
-
     if (!response.ok) {
       throw new Error('Failed to fetch categories');
     }
-
     return response.json();
   } catch (error) {
     console.error('Error fetching categories:', error);

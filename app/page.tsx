@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { BookOpen, Clock, Users } from 'lucide-react';
 import Image from 'next/image';
+import { headers } from 'next/headers';
 
 export const metadata: Metadata = {
   title: 'Micro-Quiz Platform - Test Your Knowledge',
@@ -18,17 +19,17 @@ interface Category {
 }
 
 async function getCategories(): Promise<Category[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
   try {
-    const response = await fetch(`${baseUrl}/api/categories`, {
+    const host = headers().get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const url = `${protocol}://${host}/api/categories`;
+
+    const response = await fetch(url, {
       cache: 'force-cache', // SSG behavior
     });
-
     if (!response.ok) {
       throw new Error('Failed to fetch categories');
     }
-
     return response.json();
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -38,6 +39,7 @@ async function getCategories(): Promise<Category[]> {
 
 export default async function Home() {
   const categories = await getCategories();
+  console.log('Categories:', categories); // Debug log
 
   return (
     <div className="bg-main-gradient">
